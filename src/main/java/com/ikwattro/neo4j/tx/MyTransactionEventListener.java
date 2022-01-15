@@ -27,6 +27,8 @@ public class MyTransactionEventListener extends TransactionEventListenerAdapter<
 
     @Override
     public void afterCommit(TransactionData data, Void state, GraphDatabaseService databaseService) {
-        logsvc.getUserLog(MyTransactionEventListener.class).info("Logging after commit on transaction with ID " + data.getTransactionId());
+        logsvc
+                .getUserLog(MyTransactionEventListener.class)
+                .info("Logging after commit on transaction with ID %s for database %s", data.getTransactionId(), db.databaseName());
     }
 }
