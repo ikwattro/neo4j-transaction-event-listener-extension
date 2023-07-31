@@ -6,10 +6,10 @@
 
     <groupId>com.ikwattro</groupId>
     <artifactId>neo4j-tx-listener</artifactId>
-    <version>4.4-SNAPSHOT</version>
+    <version>5.10.0-SNAPSHOT</version>
 
     <properties>
-        <neo4j.version>4.4.3</neo4j.version>
+        <neo4j.version>5.10.0</neo4j.version>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
     </properties>
