@@ -16,42 +16,50 @@ import static org.neo4j.configuration.GraphDatabaseSettings.SYSTEM_DATABASE_NAME
 @ServiceProvider
 public class MyExtensionFactory extends ExtensionFactory<MyExtensionFactory.Dependencies> {
 
-    private GraphDatabaseService db;
-    private DatabaseManagementService managementService;
-    private LogService log;
-
     public MyExtensionFactory() {
         super(ExtensionType.DATABASE, "MyExtensionFactory");
     }
 
     @Override
     public Lifecycle newInstance(ExtensionContext context, Dependencies dependencies) {
-        db = dependencies.db();
-        managementService = dependencies.databaseManagementService();
-        log = dependencies.log();
+        var db = dependencies.db();
+        var managementService = dependencies.databaseManagementService();
+        var log = dependencies.log();
 
-        return new MyAdapter();
+        return new MyAdapter(db, managementService, log);
     }
 
-    public class MyAdapter extends LifecycleAdapter {
+    public static class MyAdapter extends LifecycleAdapter {
+        private GraphDatabaseService db;
+        private DatabaseManagementService managementService;
+        private LogService log;
+
+        public MyAdapter(GraphDatabaseService db, DatabaseManagementService managementService,
+                LogService log) {
+            this.db = db;
+            this.managementService = managementService;
+            this.log = log;
+        }
 
         @Override
         public void start() throws Exception {
             if (!db.databaseName().equals(SYSTEM_DATABASE_NAME)) {
-                log.getUserLog(MyExtensionFactory.class).info("Registering transaction event listener for database " + db.databaseName());
-                managementService.registerTransactionEventListener(
-                        db.databaseName(),
-                        new MyTransactionEventListener(db, log)
-                );
+                log.getUserLog(MyExtensionFactory.class).info(
+                        "Registering transaction event listener for database " + db.databaseName());
+                managementService.registerTransactionEventListener(db.databaseName(),
+                        new MyTransactionEventListener(db, log));
             } else {
-                log.getUserLog(MyExtensionFactory.class).info("System database. Not registering transaction event listener");
+                log.getUserLog(MyExtensionFactory.class)
+                        .info("System database. Not registering transaction event listener");
             }
         }
     }
 
     interface Dependencies {
         GraphDatabaseService db();
+
         DatabaseManagementService databaseManagementService();
+
         LogService log();
     }
 }
